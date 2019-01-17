@@ -1,9 +1,9 @@
 import org.asynchttpclient.ListenableFuture;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -25,8 +25,42 @@ public class StressRunner {
 
         //context.start(1_000);
 
+
+        Storage storage = new Storage("stress_" + System.currentTimeMillis() + ".db");
+
         RequestSupplier  supplier = new RequestSupplier(context, 1_000_000);
+
+        final Queue<Response> completeQueue = new ConcurrentLinkedQueue<>();
+
+
+        AtomicInteger handleResponsCount = new AtomicInteger(1_000_000);
+
+        int batchSize = 50 * 3 * 3;
+
+
+
         Executor complete = Executors.newFixedThreadPool(3);
+        for (int i = 0; i < 3; i++) {
+            complete.execute(() -> {
+                try {
+                    while (true) {
+                        List<Response> list = fetchWhileFound(completeQueue, batchSize);
+                        if (list.size() == 0)
+                            continue;
+
+                        for (int j = 0; j < list.size(); j++) {
+                            handleResponsCount.decrementAndGet();
+                        }
+
+                        storage.insertResponses(list);
+                        //System.out.println("RESPONSE " + TimeUnit.NANOSECONDS.toMillis(response.getEnd() - response.getStart()));
+                    }
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            });
+        }
+
         AtomicInteger inWork = new AtomicInteger(50);
 
         /**
@@ -38,6 +72,7 @@ public class StressRunner {
             }
 
             inWork.decrementAndGet();
+            if (i % 1500 == 0)
             System.out.println("SEND REQUEST " + (i + 1));
 
             ListenableFuture<Response> future = context.getAsyncHttpClient()
@@ -46,15 +81,17 @@ public class StressRunner {
             int finalI = i;
             future.addListener(() -> {
                 try {
-                    Response response = future.get();
-                    System.out.println("RESPONSE " + (finalI + 1) + " " + TimeUnit.NANOSECONDS.toMillis(response.getEnd() - response.getStart()));
+                    completeQueue.add(future.get());
                 } catch (InterruptedException | ExecutionException e) {
                     System.out.println("ERROR " + (finalI + 1));
                 } finally {
                     inWork.incrementAndGet();
                 }
-            }, complete);
+            }, null);
         }
+
+
+
 
 
 
@@ -63,9 +100,27 @@ public class StressRunner {
 
         }
 
+        while (handleResponsCount.get() > 0) {
+            Thread.sleep(3000);
+            System.out.println("handleResponsCount: " + handleResponsCount.get());
+        }
+
 
         context.getAsyncHttpClient().close();
         System.exit(0);
     }
 
+
+    private static <T> List<T> fetchWhileFound(Queue<T> queue, int max) {
+        List<T> result = new ArrayList<>(max);
+        for (int i = 0; i < max; i++) {
+            T t = queue.poll();
+            if (t == null)
+                break;
+
+            result.add(t);
+        }
+
+        return result;
+    }
 }

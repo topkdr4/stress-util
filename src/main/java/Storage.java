@@ -1,10 +1,9 @@
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.List;
+import java.util.StringJoiner;
 
 
 
@@ -47,9 +46,56 @@ public class Storage {
     }
 
 
+    private static final String sql = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES(?, ?, ?)";
+
+    public void insertResponse(Response response) throws SQLException {
+        try (Connection connection = DriverManager.getConnection(dbFile);
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            connection.setAutoCommit(true);
+
+            System.out.println("INSERT");
+
+            long start = response.getStart();
+            long end   = response.getEnd();
+            long diff = end - start;
+
+            statement.setLong(1, start);
+            statement.setLong(2, end);
+            statement.setLong(3, diff);
+
+            statement.executeUpdate();
+        }
+    }
+
+    private static final String MANY_INSERT_RESPONSE = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES ";
+    public void insertResponses(List<Response> responses) throws SQLException {
+        try (Connection connection = DriverManager.getConnection(dbFile);
+             Statement statement = connection.createStatement()) {
+
+            connection.setAutoCommit(true);
+
+            System.err.println("INSERT " + responses.size());
+            StringJoiner joiner = new StringJoiner(", ");
+
+            for (Response response : responses) {
+                long start = response.getStart();
+                long end   = response.getEnd();
+                long diff = end - start;
+
+                joiner.add("(" + start + "," + end + "," + diff + ")");
+            }
+
+
+            statement.execute(MANY_INSERT_RESPONSE + joiner.toString());
+        }
+    }
+
+
     private void init() throws SQLException {
-        try (Connection connection = DriverManager.getConnection(dbFile)) {
-            Statement statement = connection.createStatement();
+        try (Connection connection = DriverManager.getConnection(dbFile);
+             Statement statement = connection.createStatement()) {
+
             statement.execute(SQL_TABLE_QUERY);
         }
     }
