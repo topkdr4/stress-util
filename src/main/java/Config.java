@@ -11,8 +11,10 @@ public class Config {
      * Конфигурация Http клиента
      */
     public static final AsyncHttpClientConfig HTTP_CLIENT_CONFIG = new DefaultAsyncHttpClientConfig.Builder()
-            .setIoThreadsCount(5)
-            .setMaxConnections(5)
+            .setIoThreadsCount(50)
+            .setMaxConnections(50)
+            .setConnectTimeout(60_000)
+            .setMaxRequestRetry(3)
             .build();
 
 

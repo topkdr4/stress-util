@@ -21,7 +21,6 @@ public class Context {
     private final BlockingQueue<Request>  requestQueue       = new LinkedBlockingQueue<>(100);
     private final BlockingQueue<Response> responseQueue      = new LinkedBlockingQueue<>();
     private final BlockingQueue<Future<Response>> futureList = new LinkedBlockingQueue<>();
-    private final CountDownLatch latch;
     private final AtomicInteger requestSendedCount = new AtomicInteger();
     private final AtomicInteger responseHandeledCount = new AtomicInteger();
     private final AtomicBoolean active = new AtomicBoolean();
@@ -34,7 +33,6 @@ public class Context {
 
     public Context(int threads) {
         this.threads = threads;
-        this.latch = new CountDownLatch(threads);
         this.asyncHttpClient = Dsl.asyncHttpClient(Config.HTTP_CLIENT_CONFIG);
     }
 
@@ -57,7 +55,7 @@ public class Context {
 
         for (int i = 0; i < requestCount; i++) {
             Request request = context.getRequestQueue().take();
-            ListenableFuture<Response> future = getAsyncHttpClient().executeRequest(request, new ResponseHandler(this));
+            //ListenableFuture<Response> future = getAsyncHttpClient().executeRequest(request, new ResponseHandler(this));
             /*future.addListener(() -> {
                 try {
                     Response response = future.get();

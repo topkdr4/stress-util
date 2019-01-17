@@ -27,8 +27,8 @@ public class ResponseConsumer implements Consumer<Response> {
     public void fetch() {
         try {
             while (context.hasRemainedResponse()) {
-                Response response = context.getResponseQueue().take();
-                this.accept(response);
+                //Response response = context.getResponseQueue().take();
+                //this.accept(response);
             }
         } catch (Exception ignored) {
 

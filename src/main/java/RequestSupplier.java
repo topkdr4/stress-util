@@ -15,7 +15,7 @@ import java.util.function.Supplier;
  * */
 public class RequestSupplier implements Supplier<Request>, Runnable {
     private static final Request postRequest = new RequestBuilder(HttpConstants.Methods.POST)
-            .setUrl("http://bikeshop.hopto.org:8080/product/list/4/2")
+            .setUrl("http://localhost:8181/product/list/4/2")
             .build();
     private final Context context;
     private final int queryCount;

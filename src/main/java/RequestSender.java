@@ -20,14 +20,12 @@ public class RequestSender implements Runnable {
     @Override
     public void run() {
         try {
-            context.getLatch().countDown();
-            context.getLatch().await();
 
             while (!Thread.interrupted() && context.hasRemainedRequest()) {
                 Request request = context.getRequestQueue().take();
 
                 ListenableFuture<Response> future = context.getAsyncHttpClient()
-                        .executeRequest(request, new ResponseHandler(context));
+                        .executeRequest(request, new ResponseHandler(context, 0));
 
                 //Response response = future.toCompletableFuture().join();
                 //context.getResponseQueue().put(response);

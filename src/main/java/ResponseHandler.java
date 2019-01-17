@@ -1,3 +1,4 @@
+import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.asynchttpclient.AsyncHandler;
 import org.asynchttpclient.HttpResponseBodyPart;
@@ -5,6 +6,8 @@ import org.asynchttpclient.HttpResponseStatus;
 import org.asynchttpclient.netty.request.NettyRequest;
 
 import java.io.ByteArrayOutputStream;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
 
 
 
@@ -17,10 +20,12 @@ public class ResponseHandler implements AsyncHandler<Response> {
     private final Context context;
     private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     private final Response response = new Response();
+    private final int index;
 
 
-    public ResponseHandler(Context context) {
+    public ResponseHandler(Context context, int index) {
         this.context = context;
+        this.index = index;
     }
 
 
@@ -53,9 +58,29 @@ public class ResponseHandler implements AsyncHandler<Response> {
 
     @Override
     public void onThrowable(Throwable throwable) {
-        response.setEnd(System.nanoTime());
         response.setError(true);
-        context.onError(response);
+        //context.onError(response);
+        System.out.println(throwable.getClass().getCanonicalName());
+        ConnectException exception = (ConnectException) throwable;
+        exception.getMessage();
+    }
+
+
+    @Override
+    public void onTcpConnectFailure(InetSocketAddress remoteAddress, Throwable cause) {
+        response.setEnd(System.nanoTime());
+    }
+
+
+    @Override
+    public void onConnectionPoolAttempt() {
+        response.setStart(System.nanoTime());
+    }
+
+
+    @Override
+    public void onConnectionPooled(Channel connection) {
+        response.setStart(System.nanoTime());
     }
 
 

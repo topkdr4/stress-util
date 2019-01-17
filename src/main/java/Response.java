@@ -23,6 +23,6 @@ public class Response {
 
     @Override
     public String toString() {
-        return "DIFF: " + (end - start) + " IS_ERROR: " + error;
+        return "START: " + start + " END: " + end + " DIFF: " + (end - start) + " IS_ERROR: " + error;
     }
 }
