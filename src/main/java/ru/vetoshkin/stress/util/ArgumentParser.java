@@ -1,3 +1,4 @@
+package ru.vetoshkin.stress.util;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,3 +1,4 @@
+package ru.vetoshkin.stress.util;
 /**
  * Ветошкин А.В. РИС-16бзу
  * */

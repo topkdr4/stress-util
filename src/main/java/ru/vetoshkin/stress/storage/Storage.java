@@ -1,3 +1,6 @@
+package ru.vetoshkin.stress.storage;
+import ru.vetoshkin.stress.Response;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -75,7 +78,6 @@ public class Storage {
 
             connection.setAutoCommit(true);
 
-            System.err.println("INSERT " + responses.size());
             StringJoiner joiner = new StringJoiner(", ");
 
             for (Response response : responses) {

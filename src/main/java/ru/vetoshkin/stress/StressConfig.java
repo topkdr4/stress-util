@@ -1,3 +1,4 @@
+package ru.vetoshkin.stress;
 import lombok.Getter;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -14,11 +15,23 @@ public class StressConfig {
     private final AsyncHttpClientConfig httpClientConfig;
 
 
-
     /**
      * Количество отправляемых запросов
      */
-    public final int requestCount;
+    private final int requestCount;
+
+
+    /**
+     * По сколько вычитывать ответов
+     */
+    private final int batchSize;
+
+
+    /**
+     * Колиечество потоков
+     */
+    private final int threads;
+
 
 
     private StressConfig(Builder builder) {
@@ -31,6 +44,10 @@ public class StressConfig {
 
 
         this.requestCount = builder.requestCount == 0 ? -1 : builder.requestCount;
+
+        this.batchSize = builder.batchSize;
+
+        this.threads = builder.threads;
     }
 
 
@@ -41,10 +58,12 @@ public class StressConfig {
         private int retry;
         private String groovyScriptPath;
         private int requestCount;
+        private int batchSize;
 
 
         public Builder setThreads(int threads) {
-            this.threads = threads;
+            this.threads   = threads;
+            this.batchSize = threads * 9;
             return this;
         }
 

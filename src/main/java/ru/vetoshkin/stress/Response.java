@@ -1,3 +1,4 @@
+package ru.vetoshkin.stress;
 import io.netty.handler.codec.http.HttpHeaders;
 import lombok.Getter;
 import lombok.Setter;

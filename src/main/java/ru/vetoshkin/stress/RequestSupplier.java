@@ -1,9 +1,8 @@
+package ru.vetoshkin.stress;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.util.HttpConstants;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
 
@@ -13,7 +12,7 @@ import java.util.function.Supplier;
 /**
  * Ветошкин А.В. РИС-16бзу
  * */
-public class RequestSupplier implements Supplier<Request>, Runnable {
+public class RequestSupplier implements Supplier<Request> {
     private static final Request postRequest = new RequestBuilder(HttpConstants.Methods.POST)
             .setUrl("http://localhost:8181/product/list/4/2")
             .build();
@@ -29,18 +28,8 @@ public class RequestSupplier implements Supplier<Request>, Runnable {
 
     @Override
     public Request get() {
+        // TODO:
         return postRequest;
     }
 
-
-    @Override
-    public void run() {
-        for (int i = 0; i < queryCount; i++) {
-            /*try {
-                //context.getRequestQueue().put(get());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }*/
-        }
-    }
 }

@@ -1,3 +1,4 @@
+package ru.vetoshkin.stress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -17,8 +18,13 @@ public class StatConsumer {
 
 
     private void accept() {
-        while (!Thread.currentThread().isInterrupted() && context.isActive()) {
-
+        while (true) {
+            System.out.println("RESP_PROCESSED: " + context.getResponseProcessedCount());
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

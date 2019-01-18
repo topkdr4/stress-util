@@ -1,3 +1,4 @@
+package ru.vetoshkin.stress;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.asynchttpclient.AsyncHandler;
@@ -6,7 +7,6 @@ import org.asynchttpclient.HttpResponseStatus;
 import org.asynchttpclient.netty.request.NettyRequest;
 
 import java.io.ByteArrayOutputStream;
-import java.net.ConnectException;
 import java.net.InetSocketAddress;
 
 
@@ -20,12 +20,10 @@ public class ResponseHandler implements AsyncHandler<Response> {
     private final Context context;
     private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     private final Response response = new Response();
-    private final int index;
 
 
-    public ResponseHandler(Context context, int index) {
+    public ResponseHandler(Context context) {
         this.context = context;
-        this.index = index;
     }
 
 
@@ -59,10 +57,7 @@ public class ResponseHandler implements AsyncHandler<Response> {
     @Override
     public void onThrowable(Throwable throwable) {
         response.setError(true);
-        //context.onError(response);
-        System.out.println(throwable.getClass().getCanonicalName());
-        ConnectException exception = (ConnectException) throwable;
-        exception.getMessage();
+        context.onError(response);
     }
 
 
