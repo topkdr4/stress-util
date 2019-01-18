@@ -1,3 +1,5 @@
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -17,11 +19,22 @@ public class StressRunner {
 
 
     public static void main(String[] args) throws Exception {
+        ArgumentParser arguments = new ArgumentParser();
+
+        Argument<Integer> argCount   = arguments.addInteger("-c" , "-count");
+        Argument<Integer> argTimeout = arguments.addInteger("-to", "-timeout");
+        Argument<Integer> argThreads = arguments.addInteger("-t",  "-threads");
+        Argument<Integer> argRetry   = arguments.addInteger("-retry");
+
+
+        arguments.parse(args);
+
+
         StressConfig config = new StressConfig.Builder()
-                .setThreads(50)
-                .setRequestCount(1_000_000)
-                .setRetry(3)
-                .setTimeout(60_000)
+                .setThreads(argThreads.get(1))
+                .setRequestCount(argCount.get(-1))
+                .setRetry(argRetry.get(3))
+                .setTimeout(argTimeout.get(60_000))
                 .build();
 
 

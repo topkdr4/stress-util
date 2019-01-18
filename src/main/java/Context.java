@@ -35,7 +35,7 @@ public class Context {
 
     public Context(StressConfig config) {
 
-        this.asyncHttpClient = Dsl.asyncHttpClient(StressConfig.HTTP_CLIENT_CONFIG);
+        this.asyncHttpClient = Dsl.asyncHttpClient(config.getHttpClientConfig());
     }
 
 

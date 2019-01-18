@@ -36,11 +36,11 @@ public class RequestSupplier implements Supplier<Request>, Runnable {
     @Override
     public void run() {
         for (int i = 0; i < queryCount; i++) {
-            try {
-                context.getRequestQueue().put(get());
+            /*try {
+                //context.getRequestQueue().put(get());
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 }

@@ -11,7 +11,7 @@ public class StressConfig {
     /**
      * Конфигурация Http клиента
      */
-    private final AsyncHttpClientConfig HTTP_CLIENT_CONFIG;
+    private final AsyncHttpClientConfig httpClientConfig;
 
 
 
@@ -22,7 +22,7 @@ public class StressConfig {
 
 
     private StressConfig(Builder builder) {
-        this.HTTP_CLIENT_CONFIG = new DefaultAsyncHttpClientConfig.Builder()
+        this.httpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setIoThreadsCount(builder.threads)
                 .setMaxConnections(builder.threads)
                 .setConnectTimeout(builder.timeout)
