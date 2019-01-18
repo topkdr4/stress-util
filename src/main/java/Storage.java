@@ -41,16 +41,13 @@ public class Storage {
     }
 
 
-    public static void main(String[] args) throws Exception {
-        new Storage("stress_" + System.currentTimeMillis() + ".db");
-    }
 
+    private static final String INSERT_ONE = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES(?, ?, ?)";
 
-    private static final String sql = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES(?, ?, ?)";
 
     public void insertResponse(Response response) throws SQLException {
         try (Connection connection = DriverManager.getConnection(dbFile);
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(INSERT_ONE)) {
 
             connection.setAutoCommit(true);
 
@@ -68,7 +65,10 @@ public class Storage {
         }
     }
 
-    private static final String MANY_INSERT_RESPONSE = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES ";
+
+    private static final String INSERT_MANY = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES ";
+
+
     public void insertResponses(List<Response> responses) throws SQLException {
         try (Connection connection = DriverManager.getConnection(dbFile);
              Statement statement = connection.createStatement()) {
@@ -87,7 +87,7 @@ public class Storage {
             }
 
 
-            statement.execute(MANY_INSERT_RESPONSE + joiner.toString());
+            statement.execute(INSERT_MANY + joiner.toString());
         }
     }
 

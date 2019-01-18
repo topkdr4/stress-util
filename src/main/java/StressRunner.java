@@ -1,9 +1,9 @@
-import org.asynchttpclient.ListenableFuture;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -17,18 +17,19 @@ public class StressRunner {
 
 
     public static void main(String[] args) throws Exception {
-        Context context = new Context(10);
+        StressConfig config = new StressConfig.Builder()
+                .setThreads(50)
+                .setRequestCount(1_000_000)
+                .setRetry(3)
+                .setTimeout(60_000)
+                .build();
 
-        /*RequestSupplier  supplier = new RequestSupplier(context, 1_000);
-        ResponseConsumer consumer = new ResponseConsumer(context);
-        StatConsumer stat = new StatConsumer(context);*/
 
-        //context.start(1_000);
 
+        Context context = new Context(config);
 
         Storage storage = new Storage("stress_" + System.currentTimeMillis() + ".db");
 
-        RequestSupplier  supplier = new RequestSupplier(context, 1_000_000);
 
         final Queue<Response> completeQueue = new ConcurrentLinkedQueue<>();
 
@@ -61,34 +62,6 @@ public class StressRunner {
             });
         }
 
-        AtomicInteger inWork = new AtomicInteger(50);
-
-        /**
-         * Закидываем 1кк запросов
-         */
-        for (int i = 0; i < 1_000_000; i++) {
-            while (inWork.get() == 0) {
-
-            }
-
-            inWork.decrementAndGet();
-            if (i % 1500 == 0)
-            System.out.println("SEND REQUEST " + (i + 1));
-
-            ListenableFuture<Response> future = context.getAsyncHttpClient()
-                    .executeRequest(supplier.get(), new ResponseHandler(context, i + 1));
-
-            int finalI = i;
-            future.addListener(() -> {
-                try {
-                    completeQueue.add(future.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    System.out.println("ERROR " + (finalI + 1));
-                } finally {
-                    inWork.incrementAndGet();
-                }
-            }, null);
-        }
 
 
 
@@ -96,6 +69,7 @@ public class StressRunner {
 
 
 
+/*
         while (inWork.get() != 50) {
 
         }
@@ -107,7 +81,7 @@ public class StressRunner {
 
 
         context.getAsyncHttpClient().close();
-        System.exit(0);
+        System.exit(0);*/
     }
 
 
