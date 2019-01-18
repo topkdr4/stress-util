@@ -27,11 +27,11 @@ public class StressRunner {
         arguments.parse(args);
 
 
-        StressConfig config = new StressConfig.Builder()
-                .setThreads(argThreads.get(1))
-                .setRequestCount(argCount.get(-1))
-                .setRetry(argRetry.get(3))
-                .setTimeout(argTimeout.get(60_000))
+        StressConfig config = StressConfig.builder()
+                .threads(argThreads.get(1))
+                .requestCount(argCount.get(-1))
+                .retry(argRetry.get(3))
+                .timeout(argTimeout.get(60_000))
                 .build();
 
 

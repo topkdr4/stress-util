@@ -1,7 +1,9 @@
 package ru.vetoshkin.stress;
+import lombok.Builder;
 import lombok.Getter;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+
 
 
 
@@ -33,68 +35,38 @@ public class StressConfig {
     private final int threads;
 
 
+    @Builder(builderMethodName = "builder")
+    public static StressConfig newConfig(
+            int threads,
+            int timeout,
+            int retry,
+            int requestCount,
+            int batchSize
+    ) {
+        return new StressConfig(threads, timeout, retry, requestCount, batchSize);
+    }
 
-    private StressConfig(Builder builder) {
+
+
+    private StressConfig(
+            int threads,
+            int timeout,
+            int retry,
+            int requestCount,
+            int batchSize
+    ) {
         this.httpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
-                .setIoThreadsCount(builder.threads)
-                .setMaxConnections(builder.threads)
-                .setConnectTimeout(builder.timeout)
-                .setMaxRequestRetry(builder.retry)
+                .setIoThreadsCount(threads)
+                .setMaxConnections(threads)
+                .setConnectTimeout(timeout)
+                .setMaxRequestRetry(retry)
                 .build();
 
 
-        this.requestCount = builder.requestCount == 0 ? -1 : builder.requestCount;
+        this.requestCount = requestCount == 0 ? -1 : requestCount;
 
-        this.batchSize = builder.batchSize;
+        this.batchSize = batchSize;
 
-        this.threads = builder.threads;
+        this.threads = threads;
     }
-
-
-
-    public static class Builder {
-        private int threads;
-        private int timeout;
-        private int retry;
-        private String groovyScriptPath;
-        private int requestCount;
-        private int batchSize;
-
-
-        public Builder setThreads(int threads) {
-            this.threads   = threads;
-            this.batchSize = threads * 1000;
-            return this;
-        }
-
-
-        public Builder setTimeout(int timeout) {
-            this.timeout = timeout;
-            return this;
-        }
-
-
-        public Builder setRetry(int retry) {
-            this.retry = retry;
-            return this;
-        }
-
-
-        public Builder setGroovyScriptPath(String groovyScriptPath) {
-            this.groovyScriptPath = groovyScriptPath;
-            return this;
-        }
-
-
-        public Builder setRequestCount(int requestCount) {
-            this.requestCount = requestCount;
-            return this;
-        }
-
-
-        public StressConfig build() {
-            return new StressConfig(this);
-        }
-    }
-
 }

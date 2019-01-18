@@ -1,6 +1,11 @@
 package ru.vetoshkin.stress.storage;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteDataSource;
 import ru.vetoshkin.stress.Response;
 
+import javax.sql.DataSource;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,7 +18,7 @@ import java.util.StringJoiner;
 
 
 public class Storage {
-    private static final String DB_PATH = System.getProperty("user.home") + "/stress-data/";
+    private static final Path   ROOT_PATH = Paths.get(System.getProperty("user.home"), "stress-data");
     private static final String PREFIX = "jdbc:sqlite:";
     private static final String SQL_TABLE_QUERY;
 
@@ -33,14 +38,14 @@ public class Storage {
 
 
     public Storage(String fileName) throws Exception {
-        this.dbFile = PREFIX + DB_PATH + fileName;
-
-        Path path = Paths.get(DB_PATH);
+        Path path = ROOT_PATH.resolve(fileName);
         if (!Files.exists(path)) {
-            Files.createDirectory(path);
+            Files.createFile(path);
         }
 
         init();
+
+        this.dbFile = PREFIX + path.toString();
     }
 
 
@@ -73,9 +78,35 @@ public class Storage {
 
 
     private void init() throws SQLException {
-        try (Connection connection = DriverManager.getConnection(dbFile);
+        /*try (Connection connection = DriverManager.getConnection(dbFile);
              Statement statement = connection.createStatement()) {
 
+            statement.execute(SQL_TABLE_QUERY);
+        }*/
+    }
+
+
+    private DataSource dataSource;
+    private void config() {
+        HikariConfig config = new HikariConfig();
+        config.setMaximumPoolSize(10);
+        config.setJdbcUrl(dbFile);
+        config.setAutoCommit(true);
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+
+        this.dataSource = new HikariDataSource(config);
+    }
+
+
+    public static void main(String[] args) throws Exception {
+        Storage storage = new Storage("file_229.db");
+        storage.config();
+
+        try (Connection connection = storage.dataSource.getConnection();
+            Statement statement = connection.createStatement()) {
             statement.execute(SQL_TABLE_QUERY);
         }
     }
