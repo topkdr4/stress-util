@@ -37,13 +37,14 @@ public class PostResponseProcessor implements Runnable {
 
     @Override
     public void run() {
+        Thread currentThread = Thread.currentThread();
         try {
-            while (true) {
+            while (!currentThread.isInterrupted()) {
+                Response first = dataSource.take();
                 List<Response> list = new ArrayList<>(batchSize);
                 dataSource.drainTo(list, batchSize);
 
-                if (list.isEmpty())
-                    continue;
+                list.add(first);
 
                 for (Response response : list) {
                     for (Consumer<Response> consumer : pipline) {
@@ -58,7 +59,7 @@ public class PostResponseProcessor implements Runnable {
                 }
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            currentThread.interrupt();
         }
     }
 }
