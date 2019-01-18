@@ -12,7 +12,7 @@ import java.util.Map;
 public class ArgumentParser {
     private Map<String, Argument<Boolean>> booleanArgs = new HashMap<>();
     private Map<String, Argument<Integer>> integerArgs = new HashMap<>();
-    private Map<String, Argument<String>>  stirngsArgs = new HashMap<>();
+    private Map<String, Argument<String>>  stringsArgs = new HashMap<>();
 
 
 
@@ -38,7 +38,7 @@ public class ArgumentParser {
     public Argument<String> addString(String... aliases) {
         Argument<String> arg = new Argument<>();
         for (int i = 0; i < aliases.length; i++) {
-            stirngsArgs.put(aliases[i], arg);
+            stringsArgs.put(aliases[i], arg);
         }
         return arg;
     }
@@ -55,7 +55,7 @@ public class ArgumentParser {
 
             Argument<Boolean> booleanArgument = booleanArgs.get(key);
             Argument<Integer> integerArgument = integerArgs.get(key);
-            Argument<String>  stringArgument  = stirngsArgs.get(key);
+            Argument<String>  stringArgument  = stringsArgs.get(key);
 
             parseBoolean(booleanArgument, value);
             parseInteger(integerArgument, value);

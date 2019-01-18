@@ -51,7 +51,7 @@ public class Context {
         this.asyncHttpClient = Dsl.asyncHttpClient(config.getHttpClientConfig());
         this.storage = new Storage("stress_" + System.currentTimeMillis() + ".db");
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 1; i++) {
             PostResponseProcessor processor = new PostResponseProcessor(this, config.getBatchSize());
 
             // TODO Обработка в груви

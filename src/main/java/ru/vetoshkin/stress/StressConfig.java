@@ -63,7 +63,7 @@ public class StressConfig {
 
         public Builder setThreads(int threads) {
             this.threads   = threads;
-            this.batchSize = threads * 9;
+            this.batchSize = threads * 1000;
             return this;
         }
 

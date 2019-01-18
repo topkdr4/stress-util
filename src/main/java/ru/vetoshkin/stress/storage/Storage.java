@@ -48,50 +48,28 @@ public class Storage {
     private static final String INSERT_ONE = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES(?, ?, ?)";
 
 
-    public void insertResponse(Response response) throws SQLException {
+    public void insertResponses(List<Response> responses) throws SQLException {
         try (Connection connection = DriverManager.getConnection(dbFile);
              PreparedStatement statement = connection.prepareStatement(INSERT_ONE)) {
 
             connection.setAutoCommit(true);
 
-            System.out.println("INSERT");
-
-            long start = response.getStart();
-            long end   = response.getEnd();
-            long diff = end - start;
-
-            statement.setLong(1, start);
-            statement.setLong(2, end);
-            statement.setLong(3, diff);
-
-            statement.executeUpdate();
-        }
-    }
-
-
-    private static final String INSERT_MANY = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES ";
-
-
-    public void insertResponses(List<Response> responses) throws SQLException {
-        try (Connection connection = DriverManager.getConnection(dbFile);
-             Statement statement = connection.createStatement()) {
-
-            connection.setAutoCommit(true);
-
-            StringJoiner joiner = new StringJoiner(", ");
-
             for (Response response : responses) {
                 long start = response.getStart();
                 long end   = response.getEnd();
-                long diff = end - start;
+                long diff  = end - start;
 
-                joiner.add("(" + start + "," + end + "," + diff + ")");
+                statement.setLong(1, start);
+                statement.setLong(2, end);
+                statement.setLong(3, diff);
+
+                statement.addBatch();
             }
 
-
-            statement.execute(INSERT_MANY + joiner.toString());
+            statement.executeBatch();
         }
     }
+
 
 
     private void init() throws SQLException {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.IntUnaryOperator;
 
 
 
@@ -57,8 +58,11 @@ public class PostResponseProcessor implements Runnable {
                 for (int j = 0; j < list.size(); j++) {
                     counter.decrementAndGet();
                 }
+
+                counter.getAndUpdate(operand -> operand - list.size());
             }
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             currentThread.interrupt();
         }
     }
