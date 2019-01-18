@@ -41,7 +41,7 @@ public class Context {
      */
     @Getter private final Storage storage;
 
-    private final Executor completePool = Executors.newFixedThreadPool(3);
+    private final Executor completePool = Executors.newSingleThreadExecutor();
 
     private final StressConfig config;
 
@@ -49,18 +49,16 @@ public class Context {
     public Context(StressConfig config) throws Exception {
         this.config = config;
         this.asyncHttpClient = Dsl.asyncHttpClient(config.getHttpClientConfig());
-        this.storage = new Storage("stress_" + System.currentTimeMillis() + ".db");
+        this.storage = new Storage();
 
-        for (int i = 0; i < 1; i++) {
-            PostResponseProcessor processor = new PostResponseProcessor(this, config.getBatchSize());
+        PostResponseProcessor processor = new PostResponseProcessor(this, config.getBatchSize());
 
-            // TODO Обработка в груви
+        // TODO Обработка в груви
             /* processor.addLast(resp -> {
 
             });*/
 
-            completePool.execute(processor);
-        }
+        completePool.execute(processor);
     }
 
 

@@ -1,31 +1,28 @@
 package ru.vetoshkin.stress;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 
 
 
 public class StatConsumer {
-    private final Executor executor = Executors.newSingleThreadExecutor();
+    private final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1);
     private final Context context;
 
 
     public StatConsumer(Context context) {
         this.context = context;
-        this.executor.execute(this::accept);
+        this.scheduled.scheduleAtFixedRate(this::accept, 0, 3, TimeUnit.SECONDS);
+        this.scheduled.execute(this::accept);
     }
 
 
     private void accept() {
-        while (true) {
-            System.out.println("RESP_PROCESSED: " + context.getResponseProcessedCount());
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        System.out.println("------------------");
+        System.out.println("RESP_PROCESSED:  " + context.getResponseProcessedCount());
+        System.out.println("RESP_QUEUE_SIZE: " + context.getCompleteQueue().size());
     }
 
 }

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.IntUnaryOperator;
 
 
 
@@ -19,7 +18,7 @@ public class PostResponseProcessor implements Runnable {
     private final int batchSize;
     private final BlockingQueue<Response> dataSource;
     private final Storage storage;
-    private final List<Consumer<Response>> pipline = new ArrayList<>();
+    private final List<Consumer<Response>> pipeline = new ArrayList<>();
     private final AtomicInteger counter;
 
 
@@ -32,7 +31,7 @@ public class PostResponseProcessor implements Runnable {
 
 
     public void addLast(Consumer<Response> consumer) {
-        this.pipline.add(consumer);
+        this.pipeline.add(consumer);
     }
 
 
@@ -41,25 +40,19 @@ public class PostResponseProcessor implements Runnable {
         Thread currentThread = Thread.currentThread();
         try {
             while (!currentThread.isInterrupted()) {
-                Response first = dataSource.take();
                 List<Response> list = new ArrayList<>(batchSize);
+                list.add(dataSource.take());
                 dataSource.drainTo(list, batchSize);
 
-                list.add(first);
-
                 for (Response response : list) {
-                    for (Consumer<Response> consumer : pipline) {
+                    for (Consumer<Response> consumer : pipeline) {
                         consumer.accept(response);
                     }
                 }
 
                 storage.insertResponses(list);
 
-                for (int j = 0; j < list.size(); j++) {
-                    counter.decrementAndGet();
-                }
-
-                counter.getAndUpdate(operand -> operand - list.size());
+                counter.updateAndGet(operand -> operand - list.size());
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());

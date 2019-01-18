@@ -1,8 +1,6 @@
 package ru.vetoshkin.stress.storage;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.sqlite.SQLiteConfig;
-import org.sqlite.SQLiteDataSource;
 import ru.vetoshkin.stress.Response;
 
 import javax.sql.DataSource;
@@ -10,8 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.List;
-import java.util.StringJoiner;
 
 
 
@@ -21,6 +19,7 @@ public class Storage {
     private static final Path   ROOT_PATH = Paths.get(System.getProperty("user.home"), "stress-data");
     private static final String PREFIX = "jdbc:sqlite:";
     private static final String SQL_TABLE_QUERY;
+    private static final String INSERT_ONE = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES(?, ?, ?)";
 
     static {
         SQL_TABLE_QUERY = new StringBuilder()
@@ -34,6 +33,12 @@ public class Storage {
     }
 
     private final String dbFile;
+    private DataSource dataSource;
+
+
+    public Storage() throws Exception {
+        this("stress_" + System.currentTimeMillis() + ".db");
+    }
 
 
 
@@ -43,21 +48,18 @@ public class Storage {
             Files.createFile(path);
         }
 
-        init();
-
         this.dbFile = PREFIX + path.toString();
+
+        config();
+        init();
     }
-
-
-
-    private static final String INSERT_ONE = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES(?, ?, ?)";
 
 
     public void insertResponses(List<Response> responses) throws SQLException {
         try (Connection connection = DriverManager.getConnection(dbFile);
              PreparedStatement statement = connection.prepareStatement(INSERT_ONE)) {
 
-            connection.setAutoCommit(true);
+            connection.setAutoCommit(false);
 
             for (Response response : responses) {
                 long start = response.getStart();
@@ -76,22 +78,18 @@ public class Storage {
     }
 
 
-
     private void init() throws SQLException {
-        /*try (Connection connection = DriverManager.getConnection(dbFile);
+        try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement()) {
-
             statement.execute(SQL_TABLE_QUERY);
-        }*/
+        }
     }
 
 
-    private DataSource dataSource;
     private void config() {
         HikariConfig config = new HikariConfig();
         config.setMaximumPoolSize(10);
         config.setJdbcUrl(dbFile);
-        config.setAutoCommit(true);
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
@@ -100,14 +98,4 @@ public class Storage {
         this.dataSource = new HikariDataSource(config);
     }
 
-
-    public static void main(String[] args) throws Exception {
-        Storage storage = new Storage("file_229.db");
-        storage.config();
-
-        try (Connection connection = storage.dataSource.getConnection();
-            Statement statement = connection.createStatement()) {
-            statement.execute(SQL_TABLE_QUERY);
-        }
-    }
 }

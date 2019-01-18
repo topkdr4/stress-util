@@ -32,6 +32,7 @@ public class StressRunner {
                 .requestCount(argCount.get(-1))
                 .retry(argRetry.get(3))
                 .timeout(argTimeout.get(60_000))
+                .batchSize(argThreads.get(1) * 1000)
                 .build();
 
 
