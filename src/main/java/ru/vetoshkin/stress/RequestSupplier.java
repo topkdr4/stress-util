@@ -3,6 +3,7 @@ import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.util.HttpConstants;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 
@@ -17,19 +18,28 @@ public class RequestSupplier implements Supplier<Request> {
             .setUrl("http://localhost:8181/product/list/4/2")
             .build();
     private final Context context;
-    private final int queryCount;
+    private final AtomicInteger queryCount;
 
 
-    public RequestSupplier(Context context, int i) {
+    public RequestSupplier(Context context, int queryCount) {
         this.context = context;
-        this.queryCount = i;
+        this.queryCount = new AtomicInteger(queryCount);
     }
 
 
     @Override
     public Request get() {
+        int count = queryCount.decrementAndGet();
+        if (count < 0)
+            return null;
+
         // TODO:
         return postRequest;
+    }
+
+
+    public int getRemain() {
+        return queryCount.get();
     }
 
 }

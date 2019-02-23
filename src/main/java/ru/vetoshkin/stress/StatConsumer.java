@@ -21,7 +21,7 @@ public class StatConsumer {
 
     private void accept() {
         System.out.println("------------------");
-        System.out.println("RESP_PROCESSED:  " + context.getResponseProcessedCount());
+        System.out.println("RESP_PROCESSED:  " + context.getResponseProcessor().getProcessed());
         System.out.println("RESP_QUEUE_SIZE: " + context.getCompleteQueue().size());
     }
 

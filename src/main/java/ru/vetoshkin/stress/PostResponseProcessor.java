@@ -1,4 +1,5 @@
 package ru.vetoshkin.stress;
+import lombok.extern.slf4j.Slf4j;
 import ru.vetoshkin.stress.storage.Storage;
 
 import java.util.ArrayList;
@@ -14,24 +15,29 @@ import java.util.function.Consumer;
 /**
  * Ветошкин А.В. РИС-16бзу
  * */
+@Slf4j
 public class PostResponseProcessor implements Runnable {
     private final int batchSize;
     private final BlockingQueue<Response> dataSource;
     private final Storage storage;
     private final List<Consumer<Response>> pipeline = new ArrayList<>();
-    private final AtomicInteger counter;
+    private final AtomicInteger processed = new AtomicInteger();
 
 
     public PostResponseProcessor(Context context, int batchSize) {
         this.dataSource = context.getCompleteQueue();
         this.storage    = context.getStorage();
-        this.counter    = context.getResponseProcessedCount();
         this.batchSize  = batchSize;
     }
 
 
     public void addLast(Consumer<Response> consumer) {
         this.pipeline.add(consumer);
+    }
+
+
+    public int getProcessed() {
+        return processed.get();
     }
 
 
@@ -52,10 +58,10 @@ public class PostResponseProcessor implements Runnable {
 
                 storage.insertResponses(list);
 
-                counter.updateAndGet(operand -> operand - list.size());
+                processed.updateAndGet(operand -> operand + list.size());
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            log.error("Handle response error: {}", e);
             currentThread.interrupt();
         }
     }
