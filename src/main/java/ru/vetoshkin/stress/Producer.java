@@ -6,6 +6,8 @@ import org.asynchttpclient.util.HttpConstants;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import static ru.vetoshkin.stress.config.Configuration.Default.INFINITY_REQUEST;
+
 
 
 
@@ -13,33 +15,45 @@ import java.util.function.Supplier;
 /**
  * Ветошкин А.В. РИС-16бзу
  * */
-public class RequestSupplier implements Supplier<Request> {
+public class Producer implements Supplier<Request> {
     private static final Request postRequest = new RequestBuilder(HttpConstants.Methods.POST)
             .setUrl("http://localhost:8181/product/list/4/2")
             .build();
-    private final Context context;
+
     private final AtomicInteger queryCount;
+    private final boolean infinity;
 
 
-    public RequestSupplier(Context context, int queryCount) {
-        this.context = context;
+    public Producer(int queryCount) {
+        this.infinity = INFINITY_REQUEST == queryCount;
         this.queryCount = new AtomicInteger(queryCount);
     }
 
 
     @Override
     public Request get() {
+        if (infinity)
+            return next();
+
         int count = queryCount.decrementAndGet();
         if (count < 0)
             return null;
 
-        // TODO:
-        return postRequest;
+        return next();
     }
 
 
     public int getRemain() {
+        if (infinity)
+            return Integer.MAX_VALUE;
+
         return queryCount.get();
+    }
+
+
+    private Request next() {
+        // TODO: ЗАПРОС
+        return postRequest;
     }
 
 }

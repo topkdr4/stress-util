@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
+
+import static ru.vetoshkin.stress.config.Configuration.Default.GROOVY_HANDLER;
 
 
 
@@ -17,22 +18,42 @@ import java.util.function.Consumer;
  * */
 @Slf4j
 public class PostResponseProcessor implements Runnable {
+    /**
+     * Размер порции
+     */
     private final int batchSize;
+
+    /**
+     * Очередь ответов
+     */
     private final BlockingQueue<Response> dataSource;
+
+    /**
+     * Хранилище
+     */
     private final Storage storage;
-    private final List<Consumer<Response>> pipeline = new ArrayList<>();
+
+    /**
+     * Обработчик ответов
+     */
+    private final ResponseProcessor processor;
+
+    /**
+     * Количество обработанных ответов
+     */
     private final AtomicInteger processed = new AtomicInteger();
 
 
-    public PostResponseProcessor(Context context, int batchSize) {
-        this.dataSource = context.getCompleteQueue();
-        this.storage    = context.getStorage();
+    public PostResponseProcessor(
+            int batchSize,
+            BlockingQueue<Response> dataSource,
+            Storage storage,
+            ResponseProcessor processor
+            ) {
         this.batchSize  = batchSize;
-    }
-
-
-    public void addLast(Consumer<Response> consumer) {
-        this.pipeline.add(consumer);
+        this.dataSource = dataSource;
+        this.storage    = storage;
+        this.processor  = processor != null ? processor : GROOVY_HANDLER;
     }
 
 
@@ -51,9 +72,7 @@ public class PostResponseProcessor implements Runnable {
                 dataSource.drainTo(list, batchSize);
 
                 for (Response response : list) {
-                    for (Consumer<Response> consumer : pipeline) {
-                        consumer.accept(response);
-                    }
+                    response.setSuccess(processor.process(response));
                 }
 
                 storage.insertResponses(list);

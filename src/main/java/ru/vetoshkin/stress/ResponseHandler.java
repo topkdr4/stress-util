@@ -42,7 +42,7 @@ public class ResponseHandler implements AsyncHandler<Response> {
 
     @Override
     public State onHeadersReceived(HttpHeaders httpHeaders) throws Exception {
-        response.setHeaders(httpHeaders);
+        response.setResponseHeaders(httpHeaders);
         return State.CONTINUE;
     }
 

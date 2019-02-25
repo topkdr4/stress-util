@@ -3,6 +3,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
+import ru.vetoshkin.stress.config.Configuration;
 
 
 
@@ -34,6 +35,18 @@ public class StressConfig {
      */
     private final int threads;
 
+    /**
+     * Обработчик
+     */
+    private final ResponseProcessor processor;
+
+
+    public static StressConfig build(Configuration conf) {
+
+
+        return null;
+    }
+
 
     @Builder(builderMethodName = "builder")
     public static StressConfig newConfig(
@@ -41,9 +54,10 @@ public class StressConfig {
             int timeout,
             int retry,
             int requestCount,
-            int batchSize
+            int batchSize,
+            String processor
     ) {
-        return new StressConfig(threads, timeout, retry, requestCount, batchSize);
+        return new StressConfig(threads, timeout, retry, requestCount, batchSize, processor);
     }
 
 
@@ -53,7 +67,8 @@ public class StressConfig {
             int timeout,
             int retry,
             int requestCount,
-            int batchSize
+            int batchSize,
+            String processor
     ) {
         this.httpClientConfig = new DefaultAsyncHttpClientConfig.Builder()
                 .setIoThreadsCount(threads)
@@ -68,5 +83,21 @@ public class StressConfig {
         this.batchSize = batchSize;
 
         this.threads = threads;
+
+        this.processor = null;
+    }
+
+
+    public void printConfig() {
+        System.out.println(""
+                + "#     ____ ______ ___   ____ ____ ____     ______ ____   ____   __ \n"
+                + "#    / __//_  __// _ \\ / __// __// __/____/_  __// __ \\ / __ \\ / / \n"
+                + "#   _\\ \\   / /  / , _// _/ _\\ \\ _\\ \\ /___/ / /  / /_/ // /_/ // /__\n"
+                + "#  /___/  /_/  /_/|_|/___//___//___/      /_/   \\____/ \\____//____/\n"
+                + "#                                                                  "
+                + "\n\n");
+
+        System.out.println("Configuration:");
+        // TODO: show config
     }
 }

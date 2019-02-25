@@ -7,6 +7,8 @@ import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Request;
 import ru.vetoshkin.stress.storage.Storage;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,46 +18,70 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Slf4j
-public class Context {
+public class Context implements Closeable {
+    /**
+     * HTTP client
+     */
     private final AsyncHttpClient asyncHttpClient;
 
-    @Getter private final AtomicBoolean active = new AtomicBoolean();
+    /**
+     * Флаг активности
+     */
+    @Getter
+    private final AtomicBoolean active = new AtomicBoolean();
 
     /**
      * Фабрика запросов
      */
-    private final RequestSupplier supplier;
+    private final Producer supplier;
 
     /**
      * Очередь ответов
      */
-    @Getter private final BlockingQueue<Response> completeQueue = new LinkedBlockingQueue<>();
+    @Getter
+    private final BlockingQueue<Response> completeQueue = new LinkedBlockingQueue<>();
+
+    /**
+     * Очередь запросов
+     */
+    private final BlockingQueue<Request> requestQueue;
 
     /**
      * Хранилище результатов
      */
-    @Getter private final Storage storage;
+    @Getter
+    private final Storage storage;
 
-    private final Executor completePool = Executors.newSingleThreadExecutor();
-
+    /**
+     * Конфигурация
+     */
     private final StressConfig config;
 
-    @Getter private final PostResponseProcessor responseProcessor;
+    /**
+     * Обработчик ответов
+     */
+    @Getter
+    private final PostResponseProcessor responseProcessor;
 
 
     public Context(StressConfig config) throws Exception {
         this.config = config;
         this.asyncHttpClient = Dsl.asyncHttpClient(config.getHttpClientConfig());
         this.storage = new Storage();
-        this.responseProcessor = new PostResponseProcessor(this, config.getBatchSize());
-        this.supplier = new RequestSupplier(this, config.getRequestCount());
 
-        // TODO Обработка в груви
-            /* responseProcessor.addLast(resp -> {
+        this.requestQueue = new LinkedBlockingQueue<>((int)(config.getThreads() * 1.2));
 
-            });*/
 
-        completePool.execute(responseProcessor);
+        this.responseProcessor = new PostResponseProcessor(
+                config.getBatchSize(),
+                this.completeQueue,
+                this.storage,
+                null
+                );
+        this.supplier = new Producer(config.getRequestCount());
+
+        Executors.newSingleThreadExecutor().execute(responseProcessor);
+
     }
 
 
@@ -72,8 +98,7 @@ public class Context {
             Thread.sleep(100);
         } while (responseProcessor.getProcessed() != config.getRequestCount());
 
-        asyncHttpClient.close();
-        active.set(false);
+        close();
     }
 
 
@@ -90,6 +115,13 @@ public class Context {
 
     public void onError(Response response) {
         completeQueue.add(response);
+    }
+
+
+    @Override
+    public void close() throws IOException {
+        asyncHttpClient.close();
+        active.set(false);
     }
 
 

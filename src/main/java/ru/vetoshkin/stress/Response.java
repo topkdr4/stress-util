@@ -13,17 +13,38 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Response {
+    /**
+     * Тело ответа
+     */
     private byte[] body;
+
+    /**
+     * Была ли ошибка
+     */
     private boolean error;
+
+    /**
+     * Начало запроса
+     */
     private long start;
+
+    /**
+     * Конец запроса
+     */
     private long end;
 
+    /**
+     * HTTP status
+     */
     private int httpStatusCode;
-    private HttpHeaders headers;
 
+    /**
+     * Заголовки ответа
+     */
+    private HttpHeaders responseHeaders;
 
-    @Override
-    public String toString() {
-        return "START: " + start + " END: " + end + " DIFF: " + (end - start) + " IS_ERROR: " + error;
-    }
+    /**
+     * Успешный ответ
+     */
+    private boolean success;
 }
