@@ -3,18 +3,12 @@ import ru.vetoshkin.stress.Context;
 import ru.vetoshkin.stress.StatConsumer;
 import ru.vetoshkin.stress.StressConfig;
 import ru.vetoshkin.stress.config.Configuration;
-import ru.vetoshkin.stress.util.Argument;
-import ru.vetoshkin.stress.util.ArgumentParser;
 import ru.vetoshkin.stress.util.Json;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 
@@ -27,30 +21,28 @@ public class StressRunner {
 
 
     public static void main(String[] args) throws Exception {
-        ArgumentParser arguments = new ArgumentParser();
+        if (args.length < 1) {
+            System.err.println("first arg is path to configuration file");
+            return;
+        }
 
-        Argument<Integer> argCount   = arguments.addInteger("-c",  "-count");
-        Argument<Integer> argTimeout = arguments.addInteger("-to", "-timeout");
-        Argument<Integer> argThreads = arguments.addInteger("-t",  "-threads");
-        Argument<Integer> argRetry   = arguments.addInteger("-retry");
-        Argument<String>  argHandler = arguments.addString("-h", "-handler");
+        StressConfig stressConfig;
 
+        try {
+            Path configPath = Paths.get(args[0]);
+            byte[] bytes = Files.readAllBytes(configPath);
 
+            String configSource = new String(bytes, StandardCharsets.UTF_8);
+            Configuration configuration = Json.getJsonMapper().readValue(configSource, Configuration.class);
+            stressConfig = StressConfig.build(configuration);
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            return;
+        }
 
-        arguments.parse(args);
+        stressConfig.printConfig();
 
-        StressConfig config = StressConfig.builder()
-                .threads(argThreads.get(1))
-                .requestCount(argCount.get(-1))
-                .retry(argRetry.get(3))
-                .timeout(argTimeout.get(60_000))
-                .batchSize(argThreads.get(1) * 1000)
-                .build();
-
-        config.printConfig();
-
-
-        Context context = new Context(config);
+        Context context = new Context(stressConfig);
 
         new StatConsumer(context);
         context.start();

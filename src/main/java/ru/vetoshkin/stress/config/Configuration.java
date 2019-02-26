@@ -26,7 +26,7 @@ public class Configuration {
     /**
      * По сколько вычитывать ответов
      */
-    private int batchSize;
+    private int batchSize = Default.BATCH_SIZE;
 
 
     /**
@@ -38,19 +38,19 @@ public class Configuration {
     /**
      * Роль в кластере
      */
-    private Role role;
+    private Role role = Default.ROLE;
 
 
     /**
      * Таймаут
      */
-    private int timeout;
+    private int timeout = Default.TIMEOUT;
 
 
     /**
      * Количество повторов
      */
-    private int retry;
+    private int retry = Default.RETRY;
 
 
     /**
@@ -80,7 +80,7 @@ public class Configuration {
     /**
      * Список серверов кластера
      */
-    private List<String> servers;
+    private List<String> servers = Default.SERVERS;
 
 
 
@@ -98,6 +98,12 @@ public class Configuration {
          * Количество повторов
          */
         public static int RETRY = 3;
+
+
+        /**
+         * По сколько вычитывать ответов
+         */
+        public static int BATCH_SIZE = 100;
 
 
         /**

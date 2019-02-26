@@ -1,12 +1,12 @@
 {
-  "requestCount": 0,
-  "batchSize": 0,
-  "threads": 0,
-  "role": null,
+  "requestCount": -1,
+  "batchSize": 100,
+  "threads": 20,
+  "role": "SINGLE",
   "timeout": 0,
   "retry": 0,
-  "endDate": "2019-02-26 01:19:15",
-  "startDate": "2019-02-26 01:19:15",
+  "endDate": null,
+  "startDate": null,
   "groovyHandler": null,
   "requestFile": null
 }
