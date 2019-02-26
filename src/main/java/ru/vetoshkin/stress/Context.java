@@ -143,8 +143,9 @@ public class Context implements Closeable {
                 context.completeQueue.add(future.get());
                 context.executeQuery();
             } catch (Exception e) {
-                log.error("Response error: {}", e);
-                Thread.currentThread().interrupt();
+                System.err.println(e.getMessage());
+                context.executeQuery();
+                // ignore
             }
         }
 

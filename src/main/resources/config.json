@@ -3,7 +3,7 @@
   "batchSize": 100,
   "threads": 20,
   "role": "SINGLE",
-  "timeout": 0,
+  "timeout": 1000,
   "retry": 0,
   "endDate": null,
   "startDate": null,

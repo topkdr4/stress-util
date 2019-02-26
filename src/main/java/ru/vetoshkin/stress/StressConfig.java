@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
-import org.asynchttpclient.util.MiscUtils;
 import ru.vetoshkin.stress.config.Configuration;
 import ru.vetoshkin.stress.config.Role;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Date;
@@ -135,6 +133,8 @@ public class StressConfig {
                 .setIoThreadsCount(threads)
                 .setMaxConnections(threads)
                 .setConnectTimeout(timeout)
+                .setReadTimeout(timeout)
+                .setRequestTimeout(timeout)
                 .setMaxRequestRetry(retry)
                 .build();
 

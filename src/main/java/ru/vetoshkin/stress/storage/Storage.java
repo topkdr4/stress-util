@@ -19,14 +19,16 @@ public class Storage {
     private static final Path   ROOT_PATH = Paths.get(System.getProperty("user.home"), "stress-data");
     private static final String PREFIX = "jdbc:sqlite:";
     private static final String SQL_TABLE_QUERY;
-    private static final String INSERT_ONE = "INSERT INTO statistics(start_time, end_time, diff_time) VALUES(?, ?, ?)";
+    private static final String INSERT_ONE = "INSERT INTO statistics(start_time, end_time, diff_time, success, http_code) VALUES(?, ?, ?, ?, ?)";
 
     static {
         SQL_TABLE_QUERY = new StringBuilder()
                 .append("CREATE TABLE IF NOT EXISTS statistics (").append('\n')
                 .append("start_time INTEGER NOT NULL,").append('\n')
                 .append("end_time   INTEGER NOT NULL,").append('\n')
-                .append("diff_time  INTEGER NOT NULL").append('\n')
+                .append("diff_time  INTEGER NOT NULL,").append('\n')
+                .append("success    INTEGER NOT NULL,").append('\n')
+                .append("http_code  INTEGER NOT NULL").append('\n')
                 .append(");")
                 .toString()
         ;
@@ -59,7 +61,7 @@ public class Storage {
         try (Connection connection = DriverManager.getConnection(dbFile);
              PreparedStatement statement = connection.prepareStatement(INSERT_ONE)) {
 
-            connection.setAutoCommit(false);
+            connection.setAutoCommit(true);
 
             for (Response response : responses) {
                 long start = response.getStart();
@@ -69,6 +71,8 @@ public class Storage {
                 statement.setLong(1, start);
                 statement.setLong(2, end);
                 statement.setLong(3, diff);
+                statement.setLong(4, 0);
+                statement.setLong(5, response.getHttpStatusCode());
 
                 statement.addBatch();
             }
