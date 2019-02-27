@@ -1,8 +1,8 @@
 package ru.vetoshkin.stress.main;
-import ru.vetoshkin.stress.Context;
 import ru.vetoshkin.stress.StatConsumer;
 import ru.vetoshkin.stress.StressConfig;
 import ru.vetoshkin.stress.config.Configuration;
+import ru.vetoshkin.stress.context.Context;
 import ru.vetoshkin.stress.util.Json;
 
 import java.nio.charset.StandardCharsets;
@@ -42,7 +42,7 @@ public class StressRunner {
 
         stressConfig.printConfig();
 
-        Context context = new Context(stressConfig);
+        Context context = Context.create(stressConfig);
 
         new StatConsumer(context);
         context.start();

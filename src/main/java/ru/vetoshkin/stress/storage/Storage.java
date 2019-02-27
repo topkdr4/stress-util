@@ -19,15 +19,17 @@ public class Storage {
     private static final Path   ROOT_PATH = Paths.get(System.getProperty("user.home"), "stress-data");
     private static final String PREFIX = "jdbc:sqlite:";
     private static final String SQL_TABLE_QUERY;
-    private static final String INSERT_ONE = "INSERT INTO statistics(start_time, end_time, diff_time, success, http_code) VALUES(?, ?, ?, ?, ?)";
+    private static final String INSERT_ONE = "INSERT INTO t_statistics(start_time, end_time, diff_time, success, error, http_code) VALUES(?, ?, ?, ?, ?, ?)";
 
     static {
         SQL_TABLE_QUERY = new StringBuilder()
-                .append("CREATE TABLE IF NOT EXISTS statistics (").append('\n')
-                .append("start_time INTEGER NOT NULL,").append('\n')
-                .append("end_time   INTEGER NOT NULL,").append('\n')
-                .append("diff_time  INTEGER NOT NULL,").append('\n')
-                .append("success    INTEGER NOT NULL,").append('\n')
+                .append("CREATE TABLE IF NOT EXISTS t_statistics (").append('\n')
+                .append("id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,").append('\n')
+                .append("start_time NUMERIC NOT NULL,").append('\n')
+                .append("end_time   NUMERIC NOT NULL,").append('\n')
+                .append("diff_time  NUMERIC NOT NULL,").append('\n')
+                .append("success    BOOLEAN NOT NULL,").append('\n')
+                .append("error      BOOLEAN NOT NULL,").append('\n')
                 .append("http_code  INTEGER NOT NULL").append('\n')
                 .append(");")
                 .toString()
@@ -38,22 +40,26 @@ public class Storage {
     private DataSource dataSource;
 
 
-    public Storage() throws Exception {
+    public Storage() {
         this("stress_" + System.currentTimeMillis() + ".db");
     }
 
 
 
-    public Storage(String fileName) throws Exception {
-        Path path = ROOT_PATH.resolve(fileName);
-        if (!Files.exists(path)) {
-            Files.createFile(path);
+    public Storage(String fileName) {
+        try {
+            Path path = ROOT_PATH.resolve(fileName);
+            if (!Files.exists(path)) {
+                Files.createFile(path);
+            }
+
+            this.dbFile = PREFIX + path.toString();
+
+            config();
+            init();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        this.dbFile = PREFIX + path.toString();
-
-        config();
-        init();
     }
 
 
@@ -71,8 +77,9 @@ public class Storage {
                 statement.setLong(1, start);
                 statement.setLong(2, end);
                 statement.setLong(3, diff);
-                statement.setLong(4, 0);
-                statement.setLong(5, response.getHttpStatusCode());
+                statement.setBoolean(4, response.isSuccess());
+                statement.setBoolean(5, response.isError());
+                statement.setInt(6, response.getHttpStatusCode());
 
                 statement.addBatch();
             }

@@ -72,6 +72,9 @@ public class PostResponseProcessor implements Runnable {
                 dataSource.drainTo(list, batchSize);
 
                 for (Response response : list) {
+                    if (response.isError())
+                        continue;
+
                     response.setSuccess(processor.process(response));
                 }
 

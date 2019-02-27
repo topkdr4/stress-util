@@ -5,6 +5,7 @@ import org.asynchttpclient.AsyncHandler;
 import org.asynchttpclient.HttpResponseBodyPart;
 import org.asynchttpclient.HttpResponseStatus;
 import org.asynchttpclient.netty.request.NettyRequest;
+import ru.vetoshkin.stress.context.Context;
 
 import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
@@ -22,7 +23,7 @@ public class ResponseHandler implements AsyncHandler<Response> {
     private final Response response = new Response();
 
 
-    public ResponseHandler(Context context) {
+    public ResponseHandler(ru.vetoshkin.stress.context.Context context) {
         this.context = context;
     }
 
@@ -56,6 +57,7 @@ public class ResponseHandler implements AsyncHandler<Response> {
 
     @Override
     public void onThrowable(Throwable throwable) {
+        response.setEnd(System.nanoTime());
         response.setError(true);
         context.onError(response);
     }
