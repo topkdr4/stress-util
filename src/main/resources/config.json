@@ -1,9 +1,9 @@
 {
-  "requestCount": -1,
-  "batchSize": 100,
-  "threads": 1,
+  "requestCount": 1000000,
+  "batchSize": 2000,
+  "threads": 200,
   "role": "SINGLE",
-  "timeout": 1000,
+  "timeout": 60000,
   "retry": 0,
   "endDate": null,
   "startDate": null,

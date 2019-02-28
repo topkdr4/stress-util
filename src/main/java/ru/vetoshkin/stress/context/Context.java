@@ -84,7 +84,6 @@ public abstract class Context implements Closeable {
 
 
         this.responseProcessor = new PostResponseProcessor(
-                config.getBatchSize(),
                 this.completeQueue,
                 this.storage,
                 config.getGroovyHandler()

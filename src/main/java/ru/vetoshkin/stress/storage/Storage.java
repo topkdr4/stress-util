@@ -78,7 +78,7 @@ public class Storage {
                 statement.setLong(2, end);
                 statement.setLong(3, diff);
                 statement.setBoolean(4, response.isSuccess());
-                statement.setBoolean(5, response.isError());
+                statement.setBoolean(5, response.isTransportError());
                 statement.setInt(6, response.getHttpStatusCode());
 
                 statement.addBatch();

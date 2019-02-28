@@ -57,8 +57,9 @@ public class ResponseHandler implements AsyncHandler<Response> {
 
     @Override
     public void onThrowable(Throwable throwable) {
+        System.err.println("THROW");
         response.setEnd(System.nanoTime());
-        response.setError(true);
+        response.setTransportError(true);
         context.onError(response);
     }
 
@@ -82,7 +83,7 @@ public class ResponseHandler implements AsyncHandler<Response> {
 
 
     @Override
-    public Response onCompleted() throws Exception {
+    public Response onCompleted() {
         response.setEnd(System.nanoTime());
         response.setBody(baos.toByteArray());
         return response;

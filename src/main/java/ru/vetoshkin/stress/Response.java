@@ -3,6 +3,10 @@ import io.netty.handler.codec.http.HttpHeaders;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
 
 
 
@@ -21,7 +25,7 @@ public class Response {
     /**
      * Была ли ошибка
      */
-    private boolean error;
+    private boolean transportError;
 
     /**
      * Начало запроса
@@ -47,4 +51,10 @@ public class Response {
      * Успешный ответ
      */
     private boolean success;
+
+
+    public long getDiffTime() {
+        return end - start;
+    }
+
 }

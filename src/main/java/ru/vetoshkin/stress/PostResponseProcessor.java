@@ -21,7 +21,7 @@ public class PostResponseProcessor implements Runnable {
     /**
      * Размер порции
      */
-    private final int batchSize;
+    private final int batchSize = 1000;
 
     /**
      * Очередь ответов
@@ -43,14 +43,21 @@ public class PostResponseProcessor implements Runnable {
      */
     private final AtomicInteger processed = new AtomicInteger();
 
+    /**
+     * Список ответов
+     */
+    private final long[] data = new long[10_000_000];
+
+    private long min;
+    private long max;
+    private int size;
+
 
     public PostResponseProcessor(
-            int batchSize,
             BlockingQueue<Response> dataSource,
             Storage storage,
             ResponseProcessor processor
             ) {
-        this.batchSize  = batchSize;
         this.dataSource = dataSource;
         this.storage    = storage;
         this.processor  = processor != null ? processor : GROOVY_HANDLER;
@@ -60,6 +67,25 @@ public class PostResponseProcessor implements Runnable {
     public int getProcessed() {
         return processed.get();
     }
+
+
+    public long quantile(double qnt) {
+        if (size == 0)
+            return 0;
+
+        int index = (int) (qnt * size);
+
+        if (index >= size)
+            index = size - 1;
+
+        return data[index];
+    }
+
+
+    public long percentile(int per) {
+        return quantile(per / 100.0);
+    }
+
 
 
     @Override
@@ -72,13 +98,29 @@ public class PostResponseProcessor implements Runnable {
                 dataSource.drainTo(list, batchSize);
 
                 for (Response response : list) {
-                    if (response.isError())
-                        continue;
+                    if (!response.isTransportError())
+                        response.setSuccess(processor.process(response));
 
-                    response.setSuccess(processor.process(response));
+                    long diff = response.getDiffTime();
+                    if (size == 0 || max < diff)
+                        max = diff;
+
+                    if (size == 0 || diff < min)
+                        min = diff;
+
+                    int last = size;
+
+                    while (last > 0 && data[last - 1] > diff) last--;
+
+                    if (size > last) {
+                        System.arraycopy(data, last, data, last + 1, size - last);
+                    }
+
+                    data[last] = diff;
+                    size++;
                 }
 
-                storage.insertResponses(list);
+                //storage.insertResponses(list);
 
                 processed.updateAndGet(operand -> operand + list.size());
             }
