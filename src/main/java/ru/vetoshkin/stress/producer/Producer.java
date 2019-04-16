@@ -1,4 +1,4 @@
-package ru.vetoshkin.stress;
+package ru.vetoshkin.stress.producer;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.util.HttpConstants;

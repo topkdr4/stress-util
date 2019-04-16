@@ -1,5 +1,5 @@
 import ru.vetoshkin.stress.Response
-import ru.vetoshkin.stress.ResponseProcessor;
+import ru.vetoshkin.stress.processor.ResponseProcessor;
 
 
 

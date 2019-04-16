@@ -1,5 +1,5 @@
 package ru.vetoshkin.stress.main;
-import ru.vetoshkin.stress.StatConsumer;
+import ru.vetoshkin.stress.consumer.StatConsumer;
 import ru.vetoshkin.stress.StressConfig;
 import ru.vetoshkin.stress.config.Configuration;
 import ru.vetoshkin.stress.context.Context;

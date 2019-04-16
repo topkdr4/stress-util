@@ -57,7 +57,6 @@ public class ResponseHandler implements AsyncHandler<Response> {
 
     @Override
     public void onThrowable(Throwable throwable) {
-        System.err.println("THROW");
         response.setEnd(System.nanoTime());
         response.setTransportError(true);
         context.onError(response);

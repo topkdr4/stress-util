@@ -1,5 +1,6 @@
-package ru.vetoshkin.stress;
+package ru.vetoshkin.stress.processor;
 import lombok.extern.slf4j.Slf4j;
+import ru.vetoshkin.stress.Response;
 import ru.vetoshkin.stress.storage.Storage;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class PostResponseProcessor implements Runnable {
     /**
      * Размер порции
      */
-    private final int batchSize = 1000;
+    private final int batchSize;
 
     /**
      * Очередь ответов
@@ -43,49 +44,23 @@ public class PostResponseProcessor implements Runnable {
      */
     private final AtomicInteger processed = new AtomicInteger();
 
-    /**
-     * Список ответов
-     */
-    private final long[] data = new long[10_000_000];
-
-    private long min;
-    private long max;
-    private int size;
-
 
     public PostResponseProcessor(
             BlockingQueue<Response> dataSource,
             Storage storage,
-            ResponseProcessor processor
+            ResponseProcessor processor,
+            int batchSize
             ) {
         this.dataSource = dataSource;
         this.storage    = storage;
         this.processor  = processor != null ? processor : GROOVY_HANDLER;
+        this.batchSize  = batchSize;
     }
 
 
     public int getProcessed() {
         return processed.get();
     }
-
-
-    public long quantile(double qnt) {
-        if (size == 0)
-            return 0;
-
-        int index = (int) (qnt * size);
-
-        if (index >= size)
-            index = size - 1;
-
-        return data[index];
-    }
-
-
-    public long percentile(int per) {
-        return quantile(per / 100.0);
-    }
-
 
 
     @Override
@@ -97,30 +72,8 @@ public class PostResponseProcessor implements Runnable {
                 list.add(dataSource.take());
                 dataSource.drainTo(list, batchSize);
 
-                for (Response response : list) {
-                    if (!response.isTransportError())
-                        response.setSuccess(processor.process(response));
 
-                    long diff = response.getDiffTime();
-                    if (size == 0 || max < diff)
-                        max = diff;
-
-                    if (size == 0 || diff < min)
-                        min = diff;
-
-                    int last = size;
-
-                    while (last > 0 && data[last - 1] > diff) last--;
-
-                    if (size > last) {
-                        System.arraycopy(data, last, data, last + 1, size - last);
-                    }
-
-                    data[last] = diff;
-                    size++;
-                }
-
-                //storage.insertResponses(list);
+                storage.insertResponses(list);
 
                 processed.updateAndGet(operand -> operand + list.size());
             }

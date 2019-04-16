@@ -1,7 +1,7 @@
 package ru.vetoshkin.stress.config;
 import lombok.Getter;
 import lombok.Setter;
-import ru.vetoshkin.stress.ResponseProcessor;
+import ru.vetoshkin.stress.processor.ResponseProcessor;
 
 import java.util.Collections;
 import java.util.Date;

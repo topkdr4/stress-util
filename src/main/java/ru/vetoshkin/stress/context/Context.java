@@ -6,6 +6,8 @@ import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Request;
 import ru.vetoshkin.stress.*;
 import ru.vetoshkin.stress.config.Role;
+import ru.vetoshkin.stress.processor.PostResponseProcessor;
+import ru.vetoshkin.stress.producer.Producer;
 import ru.vetoshkin.stress.storage.Storage;
 
 import java.io.Closeable;
@@ -49,12 +51,7 @@ public abstract class Context implements Closeable {
     /**
      * Фабрика запросов
      */
-    private final Producer supplier;
-
-    /**
-     * Очередь запросов
-     */
-    private final BlockingQueue<Request> requestQueue;
+    private final Producer producer;
 
     /**
      * Обработчик ответов
@@ -65,6 +62,7 @@ public abstract class Context implements Closeable {
     /**
      * Количество запросов
      */
+    @Getter
     protected final int requestCount;
 
     /**
@@ -80,15 +78,16 @@ public abstract class Context implements Closeable {
         this.threads = config.getThreads();
         this.asyncHttpClient = Dsl.asyncHttpClient(config.getHttpClientConfig());
 
-        this.requestQueue = new LinkedBlockingQueue<>((int)(config.getThreads() * 1.2));
-
 
         this.responseProcessor = new PostResponseProcessor(
                 this.completeQueue,
                 this.storage,
-                config.getGroovyHandler()
+                config.getGroovyHandler(),
+                config.getBatchSize()
         );
-        this.supplier = new Producer(config.getRequestCount());
+
+
+        this.producer = new Producer(config.getRequestCount());
 
         Executors.newSingleThreadExecutor().execute(responseProcessor);
     }
@@ -103,7 +102,7 @@ public abstract class Context implements Closeable {
 
 
     protected void executeQuery() {
-        Request request = supplier.get();
+        Request request = producer.get();
         if (request == null)
             return;
 
@@ -114,8 +113,8 @@ public abstract class Context implements Closeable {
 
     @Override
     public void close() throws IOException {
-        asyncHttpClient.close();
         active.set(false);
+        asyncHttpClient.close();
     }
 
 

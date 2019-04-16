@@ -6,6 +6,7 @@ import org.asynchttpclient.AsyncHttpClientConfig;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import ru.vetoshkin.stress.config.Configuration;
 import ru.vetoshkin.stress.config.Role;
+import ru.vetoshkin.stress.processor.ResponseProcessor;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -176,7 +177,7 @@ public class StressConfig {
                 { "requestFile", String.valueOf(requestFile) }
         };
 
-        final int symbolCount = 70;
+        final int symbolCount = 63;
         final String symbol = ".";
         final String delimiter = "";
 
