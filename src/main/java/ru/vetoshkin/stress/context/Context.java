@@ -13,6 +13,7 @@ import ru.vetoshkin.stress.storage.Storage;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -93,7 +94,7 @@ public abstract class Context implements Closeable {
     }
 
 
-    public abstract void start() throws Exception;
+    public abstract void start() throws RuntimeException;
 
 
     public void onError(Response response) {
@@ -112,9 +113,19 @@ public abstract class Context implements Closeable {
 
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         active.set(false);
-        asyncHttpClient.close();
+        try {
+            while (!asyncHttpClient.isClosed())
+                asyncHttpClient.close();
+
+            responseProcessor.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // ignore
+        } finally {
+            System.exit(0);
+        }
     }
 
 
@@ -156,10 +167,7 @@ public abstract class Context implements Closeable {
                 context.completeQueue.add(future.get());
                 context.executeQuery();
             } catch (Exception e) {
-                // java.util.concurrent.TimeoutException
-                System.err.println(e.getMessage());
                 context.executeQuery();
-                // ignore
             }
         }
 

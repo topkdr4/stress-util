@@ -9,6 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 
@@ -18,6 +22,7 @@ import java.nio.file.Paths;
  * Ветошкин А.В. РИС-16бзу
  * */
 public class StressRunner {
+    private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(2);
 
 
     public static void main(String[] args) throws Exception {
@@ -44,8 +49,33 @@ public class StressRunner {
 
         Context context = Context.create(stressConfig);
 
-        new StatConsumer(context);
-        context.start();
+        long beforeStart = 0;
+        Date startDate = stressConfig.getStartDate();
+
+        if (startDate != null) {
+            beforeStart = startDate.getTime() - System.currentTimeMillis();
+        }
+
+        StatConsumer consumer = new StatConsumer(context);
+
+        SCHEDULER.schedule(() -> {
+            consumer.start();
+            context.start();
+        }, beforeStart, TimeUnit.MILLISECONDS);
+
+
+        Date endDate = stressConfig.getEndDate();
+
+        if (endDate != null) {
+            long beforeEnd = endDate.getTime() - System.currentTimeMillis();
+
+            SCHEDULER.schedule(() -> {
+                consumer.printResult();
+                consumer.close();
+                context.close();
+            }, beforeEnd, TimeUnit.MILLISECONDS);
+        }
+
     }
 
 }

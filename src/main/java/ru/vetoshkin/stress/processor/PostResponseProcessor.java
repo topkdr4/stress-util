@@ -6,6 +6,7 @@ import ru.vetoshkin.stress.storage.Storage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static ru.vetoshkin.stress.config.Configuration.Default.GROOVY_HANDLER;
@@ -45,6 +46,9 @@ public class PostResponseProcessor implements Runnable {
     private final AtomicInteger processed = new AtomicInteger();
 
 
+    private final AtomicBoolean stop = new AtomicBoolean(false);
+
+
     public PostResponseProcessor(
             BlockingQueue<Response> dataSource,
             Storage storage,
@@ -68,6 +72,9 @@ public class PostResponseProcessor implements Runnable {
         Thread currentThread = Thread.currentThread();
         try {
             while (!currentThread.isInterrupted()) {
+                if (dataSource.size() == 0 && stop.get())
+                    break;
+
                 List<Response> list = new ArrayList<>(batchSize);
                 list.add(dataSource.take());
                 dataSource.drainTo(list, batchSize);
@@ -81,5 +88,9 @@ public class PostResponseProcessor implements Runnable {
             log.error("Handle response error: {}", e);
             currentThread.interrupt();
         }
+    }
+
+    public void stop() {
+        stop.set(true);
     }
 }

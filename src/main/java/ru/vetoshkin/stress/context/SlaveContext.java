@@ -15,7 +15,7 @@ class SlaveContext extends Context {
 
 
     @Override
-    public void start() throws Exception {
+    public void start() throws RuntimeException {
 
     }
 }

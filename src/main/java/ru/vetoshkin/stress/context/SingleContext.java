@@ -15,19 +15,25 @@ class SingleContext extends Context {
 
 
     @Override
-    public void start() throws Exception {
-        active.set(true);
+    public void start() throws RuntimeException {
+        try {
+            active.set(true);
 
-        for (int i = 0; i < threads; i++) {
-            executeQuery();
+            for (int i = 0; i < threads; i++) {
+                executeQuery();
+            }
+
+
+            // Ждем пока все не обработаем
+            do {
+                Thread.sleep(100);
+            } while (responseProcessor.getProcessed() != requestCount);
+
+            close();
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            active.set(false);
         }
-
-
-        // Ждем пока все не обработаем
-        do {
-            Thread.sleep(100);
-        } while (responseProcessor.getProcessed() != requestCount);
-
-        close();
     }
 }
