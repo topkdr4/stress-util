@@ -191,7 +191,7 @@ public class StressConfig {
             int length = config[0].length() + config[1].length();
             int copies = symbolCount - length;
 
-            configBuilder.append("\t")
+            configBuilder
                     .append(config[0])
                     .append(String.join(delimiter, Collections.nCopies(copies, symbol)))
                     .append(config[1]).append("\n");

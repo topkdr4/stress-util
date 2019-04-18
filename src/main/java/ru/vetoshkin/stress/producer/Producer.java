@@ -43,14 +43,6 @@ public class Producer implements Supplier<Request> {
     }
 
 
-    public int getRemain() {
-        if (infinity)
-            return Integer.MAX_VALUE;
-
-        return queryCount.get();
-    }
-
-
     private Request next() {
         // TODO: ЗАПРОС
         return postRequest;

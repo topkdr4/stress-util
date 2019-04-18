@@ -1,12 +1,10 @@
 package ru.vetoshkin.stress.consumer;
+import lombok.extern.slf4j.Slf4j;
 import ru.vetoshkin.stress.config.Configuration;
-import ru.vetoshkin.stress.context.Context;
 import ru.vetoshkin.stress.processor.PostResponseProcessor;
 import ru.vetoshkin.stress.storage.Storage;
 
 import java.io.Closeable;
-import java.io.IOException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -17,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 
 
+@Slf4j
 public class StatConsumer implements Closeable {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     private static final String DELIMITER = "------------------------------------------------------------------------------------------";
@@ -67,7 +66,7 @@ public class StatConsumer implements Closeable {
             System.out.println(DELIMITER);
             System.out.println("\n");
         } catch (Exception e) {
-            // ignore
+            log.error("print statistic error: {}", e);
         }
     }
 

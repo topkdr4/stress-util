@@ -1,19 +1,20 @@
 package ru.vetoshkin.stress.context;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.Dsl;
 import org.asynchttpclient.ListenableFuture;
 import org.asynchttpclient.Request;
-import ru.vetoshkin.stress.*;
+import ru.vetoshkin.stress.Response;
+import ru.vetoshkin.stress.ResponseHandler;
+import ru.vetoshkin.stress.StressConfig;
 import ru.vetoshkin.stress.config.Role;
 import ru.vetoshkin.stress.processor.PostResponseProcessor;
 import ru.vetoshkin.stress.producer.Producer;
 import ru.vetoshkin.stress.storage.Storage;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Ветошкин А.В. РИС-16бзу
  * */
+@Slf4j
 public abstract class Context implements Closeable {
     /**
      * Флаг активности
@@ -121,8 +123,7 @@ public abstract class Context implements Closeable {
 
             responseProcessor.stop();
         } catch (Exception e) {
-            e.printStackTrace();
-            // ignore
+            log.error("stop error {}", e);
         } finally {
             System.exit(0);
         }

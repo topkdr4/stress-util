@@ -1,4 +1,5 @@
 package ru.vetoshkin.stress.main;
+import lombok.extern.slf4j.Slf4j;
 import ru.vetoshkin.stress.consumer.StatConsumer;
 import ru.vetoshkin.stress.StressConfig;
 import ru.vetoshkin.stress.config.Configuration;
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Ветошкин А.В. РИС-16бзу
  * */
+@Slf4j
 public class StressRunner {
     private static final ScheduledExecutorService SCHEDULER = Executors.newScheduledThreadPool(2);
 
@@ -41,7 +43,7 @@ public class StressRunner {
             Configuration configuration = Json.getJsonMapper().readValue(configSource, Configuration.class);
             stressConfig = StressConfig.build(configuration);
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+            log.error("configuration error {}", e);
             return;
         }
 
@@ -75,7 +77,6 @@ public class StressRunner {
                 context.close();
             }, beforeEnd, TimeUnit.MILLISECONDS);
         }
-
     }
 
 }
