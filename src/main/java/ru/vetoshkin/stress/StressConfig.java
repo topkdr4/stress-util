@@ -7,6 +7,7 @@ import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import ru.vetoshkin.stress.config.Configuration;
 import ru.vetoshkin.stress.config.Role;
 import ru.vetoshkin.stress.processor.ResponseProcessor;
+import ru.vetoshkin.stress.producer.SendType;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -84,6 +85,12 @@ public class StressConfig {
     private final List<String> servers;
 
 
+    /**
+     * Вариант отправки
+     */
+    private final SendType sendType;
+
+
     public static StressConfig build(Configuration conf) {
         if (conf == null)
             throw new IllegalArgumentException("configuration not defined");
@@ -152,7 +159,8 @@ public class StressConfig {
                 groovyHandler,
                 groovyHandlerName,
                 conf.getRequestFile(),
-                conf.getServers()
+                conf.getServers(),
+                conf.getSendType()
         );
     }
 
@@ -176,7 +184,8 @@ public class StressConfig {
                 { "startDate", String.valueOf(startDate) },
                 { "endDate", String.valueOf(endDate) },
                 { "groovyHandler", String.valueOf(groovyHandlerName) },
-                { "requestFile", String.valueOf(requestFile) }
+                { "requestFile", String.valueOf(requestFile) },
+                { "sendType", String.valueOf(sendType) }
         };
 
         final int symbolCount = 63;

@@ -2,6 +2,7 @@ package ru.vetoshkin.stress.config;
 import lombok.Getter;
 import lombok.Setter;
 import ru.vetoshkin.stress.processor.ResponseProcessor;
+import ru.vetoshkin.stress.producer.SendType;
 
 import java.util.Collections;
 import java.util.Date;
@@ -83,6 +84,11 @@ public class Configuration {
     private List<String> servers = Default.SERVERS;
 
 
+    /**
+     * Вариант отправки
+     */
+    private SendType sendType = Default.SEND_TYPE;
+
 
     /**
      * Настройки по умолчанию
@@ -91,31 +97,31 @@ public class Configuration {
         /**
          * Таймаут
          */
-        public static int TIMEOUT = 60_000;
+        public static final int TIMEOUT = 60_000;
 
 
         /**
          * Количество повторов
          */
-        public static int RETRY = 3;
+        public static final int RETRY = 3;
 
 
         /**
          * По сколько вычитывать ответов
          */
-        public static int BATCH_SIZE = 100;
+        public static final int BATCH_SIZE = 100;
 
 
         /**
          * Groovy обработчик
          */
-        public static ResponseProcessor GROOVY_HANDLER = resp -> true;
+        public static final ResponseProcessor GROOVY_HANDLER = resp -> true;
 
 
         /**
          * Роль
          */
-        public static Role ROLE = Role.SINGLE;
+        public static final Role ROLE = Role.SINGLE;
 
 
         /**
@@ -128,5 +134,11 @@ public class Configuration {
          * Неограниченныое количество запросов
          */
         public static int INFINITY_REQUEST = -1;
+
+
+        /**
+         * Тип отправки
+         */
+        public static final SendType SEND_TYPE = SendType.RANDOM;
     }
 }

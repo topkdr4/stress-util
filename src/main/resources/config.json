@@ -8,5 +8,6 @@
   "endDate":   null,
   "startDate": null,
   "groovyHandler": null,
-  "requestFile": null
+  "requestFile": "D:\\stress-util\\requests\\requests",
+  "sendType": "CONSISTENTLY"
 }

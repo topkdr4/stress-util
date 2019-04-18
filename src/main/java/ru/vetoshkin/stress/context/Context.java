@@ -90,7 +90,7 @@ public abstract class Context implements Closeable {
         );
 
 
-        this.producer = new Producer(config.getRequestCount());
+        this.producer = new Producer(config);
 
         Executors.newSingleThreadExecutor().execute(responseProcessor);
     }
