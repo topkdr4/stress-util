@@ -5,8 +5,8 @@
   "role": "SINGLE",
   "timeout": 60000,
   "retry": 0,
-  "endDate":   "2019-04-17 01:15:00",
-  "startDate": "2019-04-17 01:14:00",
-  "groovyHandler": null,
+  "endDate":   null,
+  "startDate": null,
+  "groovyHandler": "D:\\stress-util\\groovy-handler\\Handler.groovy",
   "requestFile": null
 }

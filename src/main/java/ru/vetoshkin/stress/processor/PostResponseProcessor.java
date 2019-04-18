@@ -45,7 +45,9 @@ public class PostResponseProcessor implements Runnable {
      */
     private final AtomicInteger processed = new AtomicInteger();
 
-
+    /**
+     * Флаг прерывания
+     */
     private final AtomicBoolean stop = new AtomicBoolean(false);
 
 
@@ -57,7 +59,7 @@ public class PostResponseProcessor implements Runnable {
             ) {
         this.dataSource = dataSource;
         this.storage    = storage;
-        this.processor  = processor != null ? processor : GROOVY_HANDLER;
+        this.processor  = processor;
         this.batchSize  = batchSize;
     }
 
@@ -79,6 +81,9 @@ public class PostResponseProcessor implements Runnable {
                 list.add(dataSource.take());
                 dataSource.drainTo(list, batchSize);
 
+                for (Response resp : list) {
+                    resp.setSuccess(processor.process(resp));
+                }
 
                 storage.insertResponses(list);
 

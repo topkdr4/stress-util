@@ -116,7 +116,9 @@ public class StressConfig {
                 String sourceClass = new String(bytes, StandardCharsets.UTF_8);
 
                 GroovyClassLoader groovyClassLoader = new GroovyClassLoader(Thread.currentThread().getContextClassLoader());
-                groovyHandler = (ResponseProcessor) groovyClassLoader.parseClass(sourceClass).newInstance();
+                Class<?> handlerClass = groovyClassLoader.parseClass(sourceClass);
+                groovyHandler = (ResponseProcessor) handlerClass.newInstance();
+                groovyHandlerName = handlerClass.getName();
             } catch (Exception e) {
                 throw new IllegalArgumentException("param `groovyHandler` error: " + e.getMessage());
             }
