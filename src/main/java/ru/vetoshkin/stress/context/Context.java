@@ -137,10 +137,10 @@ public abstract class Context implements Closeable {
 
         switch (role) {
             case SLAVE:
-                return new SlaveContext(config);
-
             case LEADER:
-                return new LeaderContext(config);
+                //return new SlaveContext(config);
+                //return new LeaderContext(config);
+                throw new UnsupportedOperationException("Role `" + role + "` is not supported");
 
             case SINGLE:
                 return new SingleContext(config);

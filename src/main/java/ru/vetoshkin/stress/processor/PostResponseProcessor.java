@@ -9,7 +9,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static ru.vetoshkin.stress.config.Configuration.Default.GROOVY_HANDLER;
 
 
 

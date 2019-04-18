@@ -7,6 +7,6 @@
   "retry": 0,
   "endDate":   null,
   "startDate": null,
-  "groovyHandler": "D:\\stress-util\\groovy-handler\\Handler.groovy",
+  "groovyHandler": null,
   "requestFile": null
 }
